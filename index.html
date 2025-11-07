@@ -170,6 +170,12 @@
             font-size: 0.8em;
         }
 
+        .submission-datetime {
+            font-size: 0.8em;
+            color: var(--leetcode-text);
+            margin-top: 4px;
+        }
+
         .status-accepted {
             background-color: var(--leetcode-green);
             color: #fff;
@@ -193,15 +199,15 @@
 
     <script>
         // Add your LeetCode usernames here
-        const USERNAMES = [
-            'HQ4umhXFKC',
-            'rahulilk100',
-            '1455',
-            'Rushi1705',
-            'SarthakDengale'
+        const USERS = [
+            { username: 'HQ4umhXFKC', displayName: 'Tejas' },
+            { username: 'rahulilk100', displayName: 'Rahul' },
+            { username: '1455', displayName: 'Nikhil' },
+            { username: 'Rushi1705', displayName: 'Rushi' },
+            { username: 'SarthakDengale', displayName: 'Sarthak' }
         ];
 
-        function createProfileCard(username) {
+        function createProfileCard(user) {
             const card = document.createElement('div');
             card.className = 'profile-card';
             card.innerHTML = `
@@ -209,12 +215,16 @@
                     <div class="loading-spinner"></div>
                 </div>
                 <div class="profile-header">
-                    <h2>${username}</h2>
+                    <h2>${user.displayName}</h2>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-label">Total Solved</div>
                         <div class="stat-value" id="${username}-total">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Acceptance Rate</div>
+                        <div class="stat-value" id="${username}-acceptance">-</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Ranking</div>
@@ -250,10 +260,13 @@
                 const submissionEl = document.createElement('div');
                 submissionEl.className = 'submission-item';
                 const statusClass = submission.statusDisplay === 'Accepted' ? 'status-accepted' : 'status-error';
+                const date = new Date(submission.timestamp * 1000);
+                const formattedDate = date.toLocaleString();
                 
                 submissionEl.innerHTML = `
                     <div class="submission-title">${submission.title}</div>
                     <span class="submission-status ${statusClass}">${submission.statusDisplay}</span>
+                    <div class="submission-datetime">${formattedDate}</div>
                 `;
                 container.appendChild(submissionEl);
             });
@@ -264,20 +277,23 @@
             return Math.max(...Object.values(submissionCalendar));
         }
 
-        async function fetchUserStats(username) {
+        async function fetchUserStats(user) {
             try {
-                const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${username}`);
+                const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${user.username}`);
                 const data = await response.json();
                 
-                document.getElementById(`${username}-total`).textContent = data.totalSolved;
-                document.getElementById(`${username}-ranking`).textContent = data.ranking.toLocaleString();
-                document.getElementById(`${username}-easy`).textContent = data.easySolved;
-                document.getElementById(`${username}-medium`).textContent = data.mediumSolved;
-                document.getElementById(`${username}-hard`).textContent = data.hardSolved;
+                const acceptanceRate = ((data.totalSubmissions[0].count / data.totalSubmissions[0].submissions) * 100).toFixed(1);
+                
+                document.getElementById(`${user.username}-total`).textContent = data.totalSolved;
+                document.getElementById(`${user.username}-acceptance`).textContent = `${acceptanceRate}%`;
+                document.getElementById(`${user.username}-ranking`).textContent = data.ranking.toLocaleString();
+                document.getElementById(`${user.username}-easy`).textContent = data.easySolved;
+                document.getElementById(`${user.username}-medium`).textContent = data.mediumSolved;
+                document.getElementById(`${user.username}-hard`).textContent = data.hardSolved;
                 
                 // Display recent submissions
                 if (data.recentSubmissions) {
-                    displayRecentSubmissions(username, data.recentSubmissions);
+                    displayRecentSubmissions(user.username, data.recentSubmissions);
                 }
             } catch (error) {
                 const card = document.querySelector(`[data-username="${username}"]`);
@@ -291,11 +307,11 @@
 
         function initializeDashboard() {
             const dashboard = document.getElementById('dashboard');
-            USERNAMES.forEach(username => {
-                const card = createProfileCard(username);
-                card.setAttribute('data-username', username);
+            USERS.forEach(user => {
+                const card = createProfileCard(user);
+                card.setAttribute('data-username', user.username);
                 dashboard.appendChild(card);
-                fetchUserStats(username);
+                fetchUserStats(user);
             });
         }
 
