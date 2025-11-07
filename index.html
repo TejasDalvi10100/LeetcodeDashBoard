@@ -1,1 +1,259 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Friends Dashboard</title>
+    <style>
+        :root {
+            --leetcode-black: #282828;
+            --leetcode-gray: #444;
+            --leetcode-green: #00b8a3;
+            --leetcode-yellow: #ffc01e;
+            --leetcode-red: #ff375f;
+            --leetcode-text: #eff2f699;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--leetcode-black);
+            color: var(--leetcode-text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .profile-card {
+            background-color: var(--leetcode-gray);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.5em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            padding: 8px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: var(--leetcode-text);
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .difficulty-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .difficulty {
+            text-align: center;
+            padding: 8px;
+            border-radius: 4px;
+            flex: 1;
+            margin: 0 4px;
+        }
+
+        .easy { background-color: var(--leetcode-green); }
+        .medium { background-color: var(--leetcode-yellow); }
+        .hard { background-color: var(--leetcode-red); }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(40, 40, 40, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--leetcode-text);
+            border-top: 4px solid var(--leetcode-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: var(--leetcode-red);
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LeetCode Friends Dashboard</h1>
+        </div>
+        <div class="dashboard" id="dashboard">
+            <!-- Profile cards will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Add your LeetCode usernames here
+        const USERNAMES = [
+            'HQ4umhXFKC',
+            'rahulilk100',
+            '1455',
+            'Rushi1705',
+            'SarthakDengale'
+        ];
+
+        function createProfileCard(username) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+            card.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+                <div class="profile-header">
+                    <h2>${username}</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Total Solved</div>
+                        <div class="stat-value" id="${username}-total">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Acceptance Rate</div>
+                        <div class="stat-value" id="${username}-acceptance">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Ranking</div>
+                        <div class="stat-value" id="${username}-ranking">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Max Streak</div>
+                        <div class="stat-value" id="${username}-streak">-</div>
+                    </div>
+                </div>
+                <div class="difficulty-stats">
+                    <div class="difficulty easy">
+                        <div class="stat-label">Easy</div>
+                        <div class="stat-value" id="${username}-easy">-</div>
+                    </div>
+                    <div class="difficulty medium">
+                        <div class="stat-label">Medium</div>
+                        <div class="stat-value" id="${username}-medium">-</div>
+                    </div>
+                    <div class="difficulty hard">
+                        <div class="stat-label">Hard</div>
+                        <div class="stat-value" id="${username}-hard">-</div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        function getMaxStreak(submissionCalendar) {
+            if (!submissionCalendar) return 0;
+            return Math.max(...Object.values(submissionCalendar));
+        }
+
+        async function fetchUserStats(username) {
+            try {
+                const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById(`${username}-total`).textContent = data.totalSolved;
+                    document.getElementById(`${username}-acceptance`).textContent = `${data.acceptanceRate}%`;
+                    document.getElementById(`${username}-ranking`).textContent = data.ranking.toLocaleString();
+                    document.getElementById(`${username}-streak`).textContent = getMaxStreak(data.submissionCalendar);
+                    document.getElementById(`${username}-easy`).textContent = data.easySolved;
+                    document.getElementById(`${username}-medium`).textContent = data.mediumSolved;
+                    document.getElementById(`${username}-hard`).textContent = data.hardSolved;
+                } else {
+                    throw new Error('Failed to fetch data');
+                }
+            } catch (error) {
+                const card = document.querySelector(`[data-username="${username}"]`);
+                card.innerHTML = `<div class="error">Failed to load data for ${username}</div>`;
+            } finally {
+                const card = document.querySelector(`[data-username="${username}"]`);
+                const loading = card.querySelector('.loading');
+                if (loading) loading.remove();
+            }
+        }
+
+        function initializeDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            USERNAMES.forEach(username => {
+                const card = createProfileCard(username);
+                card.setAttribute('data-username', username);
+                dashboard.appendChild(card);
+                fetchUserStats(username);
+            });
+        }
+
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+    </script>
+</body>
+</html>
