@@ -296,12 +296,14 @@
                     displayRecentSubmissions(user.username, data.recentSubmissions);
                 }
             } catch (error) {
-                const card = document.querySelector(`[data-username="${username}"]`);
-                card.innerHTML = `<div class="error">Failed to load data for ${username}</div>`;
+                const card = document.querySelector(`[data-username="${user.username}"]`);
+                card.innerHTML = `<div class="error">Failed to load data for ${user.displayName}</div>`;
             } finally {
-                const card = document.querySelector(`[data-username="${username}"]`);
+                const card = document.querySelector(`[data-username="${user.username}"]`);
                 const loading = card.querySelector('.loading');
-                if (loading) loading.remove();
+                if (loading) {
+                    loading.remove();
+                }
             }
         }
 
