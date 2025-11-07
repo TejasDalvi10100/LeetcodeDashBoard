@@ -43,13 +43,28 @@
         .header h1 {
             color: #fff;
             margin-bottom: 10px;
-            font-size: 2.5em;
-            font-weight: 700;
+            font-size: 2.8em;
+            font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(45deg, #fff, #ffffffcc);
+            background: linear-gradient(45deg, #ffd700, #ffac38);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd700, #ffac38);
+            border-radius: 2px;
         }
 
         .dashboard {
@@ -88,6 +103,7 @@
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
         }
 
         .profile-header h2 {
@@ -96,6 +112,37 @@
             font-size: 1.6em;
             font-weight: 600;
             letter-spacing: -0.5px;
+            flex-grow: 1;
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+        }
+        
+        .rank-2 {
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+        }
+        
+        .rank-3 {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
         }
 
         .stats-grid {
@@ -259,7 +306,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>LeetCode Friends Dashboard</h1>
+            <h1>LeetCode Champions Board</h1>
         </div>
         <div class="dashboard" id="dashboard">
             <!-- Profile cards will be inserted here -->
@@ -386,8 +433,125 @@
             });
         }
 
+        // Global variable to store user data
+        let userData = [];
+
+        async function fetchAllUserData() {
+            const promises = USERS.map(async user => {
+                try {
+                    const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${user.username}`);
+                    const data = await response.json();
+                    return {
+                        ...user,
+                        data: data
+                    };
+                } catch (error) {
+                    console.error(`Error fetching data for ${user.username}:`, error);
+                    return {
+                        ...user,
+                        data: null
+                    };
+                }
+            });
+
+            userData = await Promise.all(promises);
+            // Sort users by total solved problems
+            userData.sort((a, b) => {
+                if (!a.data) return 1;
+                if (!b.data) return -1;
+                return b.data.totalSolved - a.data.totalSolved;
+            });
+
+            // Clear and rebuild dashboard with sorted data
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '';
+            userData.forEach((user, index) => {
+                const card = createProfileCard(user);
+                card.setAttribute('data-username', user.username);
+                dashboard.appendChild(card);
+                if (user.data) {
+                    updateCardWithData(user, index + 1);
+                }
+            });
+        }
+
+        function createProfileCard(user) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+            card.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+                <div class="profile-header">
+                    <h2>${user.displayName}</h2>
+                    <div class="rank-badge rank-${user.rank <= 3 ? user.rank : ''}">#${user.rank || '-'}</div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Total Solved</div>
+                        <div class="stat-value" id="${user.username}-total">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Acceptance Rate</div>
+                        <div class="stat-value" id="${user.username}-acceptance">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Ranking</div>
+                        <div class="stat-value" id="${user.username}-ranking">-</div>
+                    </div>
+                </div>
+                <div class="difficulty-stats">
+                    <div class="difficulty easy">
+                        <div class="stat-label">Easy</div>
+                        <div class="stat-value" id="${user.username}-easy">-</div>
+                    </div>
+                    <div class="difficulty medium">
+                        <div class="stat-label">Medium</div>
+                        <div class="stat-value" id="${user.username}-medium">-</div>
+                    </div>
+                    <div class="difficulty hard">
+                        <div class="stat-label">Hard</div>
+                        <div class="stat-value" id="${user.username}-hard">-</div>
+                    </div>
+                </div>
+                <div class="recent-submissions" id="${user.username}-submissions">
+                    <div class="stat-label">Recent Submissions</div>
+                </div>
+            `;
+            return card;
+        }
+
+        function updateCardWithData(user, rank) {
+            const data = user.data;
+            if (!data) return;
+
+            document.getElementById(`${user.username}-total`).textContent = data.totalSolved;
+            document.getElementById(`${user.username}-acceptance`).textContent = ((data.totalSubmissions[0].count / data.totalSubmissions[0].submissions) * 100).toFixed(1) + '%';
+            document.getElementById(`${user.username}-ranking`).textContent = data.ranking.toLocaleString();
+            document.getElementById(`${user.username}-easy`).textContent = data.easySolved;
+            document.getElementById(`${user.username}-medium`).textContent = data.mediumSolved;
+            document.getElementById(`${user.username}-hard`).textContent = data.hardSolved;
+
+            // Update rank badge
+            const card = document.querySelector(`[data-username="${user.username}"]`);
+            const rankBadge = card.querySelector('.rank-badge');
+            rankBadge.textContent = `#${rank}`;
+            rankBadge.className = `rank-badge ${rank <= 3 ? 'rank-' + rank : ''}`;
+
+            // Display recent submissions
+            if (data.recentSubmissions) {
+                displayRecentSubmissions(user.username, data.recentSubmissions);
+            }
+
+            // Remove loading state
+            const loading = card.querySelector('.loading');
+            if (loading) loading.remove();
+        }
+
         // Initialize the dashboard when the page loads
-        document.addEventListener('DOMContentLoaded', initializeDashboard);
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAllUserData();
+        });
     </script>
 </body>
 </html>
