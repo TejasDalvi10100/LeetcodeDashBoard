@@ -46,13 +46,13 @@
             font-size: 2.8em;
             font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(45deg, #ffd700, #ffac38);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            color: #fff;
+            text-shadow: none;
             position: relative;
             padding-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1px;
         }
 
         .header h1::after {
@@ -62,24 +62,41 @@
             left: 50%;
             transform: translateX(-50%);
             width: 100px;
-            height: 4px;
-            background: linear-gradient(90deg, #ffd700, #ffac38);
+            height: 2px;
+            background: #fff;
             border-radius: 2px;
+            opacity: 0.3;
         }
 
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            padding: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            padding: 20px 10px;
             max-width: 1400px;
             margin: 0 auto;
             animation: fadeIn 0.5s ease-out;
+            align-items: start;
         }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                padding: 10px;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
         }
 
         @media (min-width: 1200px) {
@@ -90,49 +107,60 @@
 
         .profile-card {
             background-color: var(--leetcode-gray);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 20px;
             position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
-            height: 100%;
-            max-height: 400px;
+            overflow: visible;
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.8), rgba(45, 45, 45, 0.6));
         }
 
         .profile-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-8px);
             box-shadow: var(--card-hover-shadow);
-            border-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 184, 163, 0.3);
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.95), rgba(45, 45, 45, 0.75));
         }
 
         .profile-header {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
+            gap: 12px;
         }
 
         .profile-header h2 {
             margin: 0;
             color: #fff;
-            font-size: 1.3em;
-            font-weight: 600;
+            font-size: 1.35em;
+            font-weight: 700;
             letter-spacing: -0.5px;
             flex-grow: 1;
+            word-break: break-word;
+        }
+
+        .profile-header a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s ease;
+        }
+
+        .profile-header a:hover {
+            color: var(--leetcode-green);
         }
 
         .rank-badge {
-            position: absolute;
-            top: -12px;
-            right: -12px;
-            width: 32px;
-            height: 32px;
+            position: relative;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #ffd700, #ffa500);
             border-radius: 50%;
             display: flex;
@@ -143,6 +171,7 @@
             font-size: 1.1em;
             border: 2px solid #fff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0;
         }
 
         .rank-1 {
@@ -159,73 +188,89 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .stat-item {
-            padding: 8px;
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.06);
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 184, 163, 0.2);
             text-align: center;
         }
 
         .stat-item:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 184, 163, 0.12);
+            border-color: rgba(0, 184, 163, 0.4);
             transform: translateY(-2px);
         }
 
         .stat-label {
-            font-size: 0.7em;
+            font-size: 0.75em;
             color: var(--leetcode-text);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             white-space: nowrap;
+            font-weight: 500;
         }
 
         .stat-value {
-            font-size: 1.1em;
+            font-size: 1.2em;
             color: #fff;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: -0.5px;
         }
 
         .difficulty-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
+            margin-top: 20px;
         }
 
         .difficulty {
             text-align: center;
-            padding: 12px;
+            padding: 14px 12px;
             border-radius: 12px;
-            flex: 1;
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
         }
 
         .difficulty:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .easy { 
             background-color: rgba(0, 184, 163, 0.15);
             border-color: var(--leetcode-green);
         }
+
+        .easy:hover {
+            background-color: rgba(0, 184, 163, 0.25);
+        }
+
         .medium { 
             background-color: rgba(255, 192, 30, 0.15);
             border-color: var(--leetcode-yellow);
         }
+
+        .medium:hover {
+            background-color: rgba(255, 192, 30, 0.25);
+        }
+
         .hard { 
             background-color: rgba(255, 55, 95, 0.15);
             border-color: var(--leetcode-red);
+        }
+
+        .hard:hover {
+            background-color: rgba(255, 55, 95, 0.25);
         }
 
         .loading {
@@ -262,33 +307,32 @@
         }
 
         .recent-submissions {
-            margin-top: 12px;
+            margin-top: 16px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 12px;
-            flex-grow: 1;
+            padding-top: 16px;
             overflow-y: auto;
-            max-height: 180px;
+            max-height: 150px;
         }
 
         .submission-item {
-            padding: 8px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.06);
             font-size: 0.85em;
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .submission-item:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(2px);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 184, 163, 0.3);
+            transform: translateX(3px);
         }
 
         .submission-title {
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
@@ -297,17 +341,17 @@
 
         .submission-status {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 3px 10px;
             border-radius: 4px;
             font-size: 0.75em;
-            font-weight: 500;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
         .submission-datetime {
             font-size: 0.75em;
             color: var(--leetcode-text);
-            margin-top: 4px;
+            margin-top: 6px;
             opacity: 0.8;
         }
 
@@ -331,15 +375,47 @@
         }
 
         .status-accepted {
-            background-color: rgba(0, 184, 163, 0.15);
+            background-color: rgba(0, 184, 163, 0.2);
             color: var(--leetcode-green);
             border: 1px solid var(--leetcode-green);
         }
 
         .status-error {
-            background-color: rgba(255, 55, 95, 0.15);
+            background-color: rgba(255, 55, 95, 0.2);
             color: var(--leetcode-red);
             border: 1px solid var(--leetcode-red);
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .profile-header h2 {
+                font-size: 1.1em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .difficulty-stats {
+                gap: 10px;
+                margin-top: 16px;
+            }
+
+            .difficulty {
+                padding: 12px 8px;
+            }
+
+            .stat-label {
+                font-size: 0.7em;
+            }
+
+            .stat-value {
+                font-size: 1.1em;
+            }
         }
     </style>
 </head>
@@ -372,16 +448,12 @@
                     <div class="loading-spinner"></div>
                 </div>
                 <div class="profile-header">
-                    <h2>${user.displayName}</h2>
+                    <h2><a href="https://leetcode.com/${user.username}" target="_blank">${user.displayName}</a></h2>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-label">Total Solved</div>
                         <div class="stat-value" id="${user.username}-total">-</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Acceptance Rate</div>
-                        <div class="stat-value" id="${user.username}-acceptance">-</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Ranking</div>
@@ -534,17 +606,13 @@
                     <div class="loading-spinner"></div>
                 </div>
                 <div class="profile-header">
-                    <h2>${user.displayName}</h2>
+                    <h2><a href="https://leetcode.com/${user.username}" target="_blank">${user.displayName}</a></h2>
                     <div class="rank-badge rank-${user.rank <= 3 ? user.rank : ''}">#${user.rank || '-'}</div>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-label">Total Solved</div>
                         <div class="stat-value" id="${user.username}-total">-</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Acceptance Rate</div>
-                        <div class="stat-value" id="${user.username}-acceptance">-</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Ranking</div>
@@ -577,7 +645,6 @@
             if (!data) return;
 
             document.getElementById(`${user.username}-total`).textContent = data.totalSolved;
-            document.getElementById(`${user.username}-acceptance`).textContent = ((data.totalSubmissions[0].count / data.totalSubmissions[0].submissions) * 100).toFixed(1) + '%';
             document.getElementById(`${user.username}-ranking`).textContent = data.ranking.toLocaleString();
             document.getElementById(`${user.username}-easy`).textContent = data.easySolved;
             document.getElementById(`${user.username}-medium`).textContent = data.mediumSolved;
